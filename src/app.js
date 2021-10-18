@@ -1,132 +1,175 @@
 // MGA TO DO ELEMENTS
-const clear = document.querySelector(".clear");
-const dateElement = document.getElementById("date");
-const list = document.getElementById("list");
-const input = document.getElementById("input");
-const filterOption = document.querySelector(".select");
+window.onload = function () {
+  const clear = document.querySelector('.clear');
+  const dateElement = document.getElementById('date');
+  const list = document.getElementById('list');
+  const input = document.getElementById('input');
+  const filterOption = document.querySelector('.select');
+  const showCompletedBtn = document.getElementById('showCompleted');
+  const showActiveBtn = document.getElementById('showActive');
+  const showAllBtn = document.getElementById('showAll');
+  const listeners = [];
 
-// MGA TO DO CLASSES
-const CHECK = "fa-check-circle";
-const UNCHECK = "fa-circle-thin";
-const LINE_THROUGH = "lineThrough";
+  // MGA TO DO CLASSES
+  const CHECK = 'fa-check-circle';
+  const UNCHECK = 'fa-circle-thin';
+  const LINE_THROUGH = 'lineThrough';
 
-// MGA VARIABLES
-let LIST;
-let id;
+  localStorage.setItem('showAll', 'yes');
+  localStorage.setItem('showDone', 'no');
 
-// KUNIN ANG ITEM SA LOCALSTORAGE
-let data = localStorage.getItem("TODO");
+  // MGA VARIABLES
+  let LIST;
+  let id;
 
-// TIGNAN KUNG MERONG TASK NA NILAGAY
-if(data) {
+  // KUNIN ANG ITEM SA LOCALSTORAGE
+  let data = localStorage.getItem('TODO');
+
+  // TIGNAN KUNG MERONG TASK NA NILAGAY
+  if (data) {
     LIST = JSON.parse(data);
-    id = LIST.length;   // ISET ANG SUSUNOD NA ID NUMBER SA LIST
-    loadList(LIST);   // ILOAD ANG LIST SA USER INTERFACE
-} else {
+    id = LIST.length; // ISET ANG SUSUNOD NA ID NUMBER SA LIST
+    loadList(LIST); // ILOAD ANG LIST SA USER INTERFACE
+  } else {
     LIST = [];
     id = 0;
-}
+  }
 
-// ILOAD ANG ITEM SA USER INTERFACE
-function loadList(array) {
-    array.forEach(function(item) {
+  // ILOAD ANG ITEM SA USER INTERFACE
+  function loadList(array = [], showAll = true, renderDoneOnly = false) {
+    if (showAll) {
+      return array.forEach(function (item) {
         addToDo(item.name, item.id, item.done, item.trash);
-    });
-};
+      });
+    }
 
-// ALISIN LAHAT NG TASK
-clear.addEventListener("click", function() {
+    return array
+      .filter(function (item) {
+        return renderDoneOnly ? item.done : !item.done;
+      })
+      .forEach(function (item) {
+        addToDo(item.name, item.id, item.done, item.trash);
+      });
+  }
+
+  showActiveBtn.addEventListener('click', function () {
+    list.innerHTML = '';
+    localStorage.setItem('showAll', 'no');
+    localStorage.setItem('showDone', 'no');
+    loadList(LIST, false, false);
+  });
+
+  showCompletedBtn.addEventListener('click', function () {
+    list.innerHTML = '';
+    localStorage.setItem('showAll', 'no');
+    localStorage.setItem('showDone', 'yes');
+    loadList(LIST, false, true);
+  });
+
+  showAllBtn.addEventListener('click', function () {
+    list.innerHTML = '';
+    localStorage.setItem('showAll', 'yes');
+    loadList(LIST, true);
+  });
+
+  // ALISIN LAHAT NG TASK
+  clear.addEventListener('click', function () {
     localStorage.clear();
     location.reload();
-});
+  });
 
-// ANG PETSA NGAYONG ARAW
-const options = {weekday: "long", month: "short", day: "numeric", year:"numeric"};
-const today = new Date();
-dateElement.innerHTML = today.toLocaleDateString("en-US", options);
+  // ANG PETSA NGAYONG ARAW
+  const options = {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  };
+  const today = new Date();
+  dateElement.innerHTML = today.toLocaleDateString('en-US', options);
 
-// ADD NG TO DO FUNCTION
-function addToDo(toDo, id, done, trash) {
-
-    if (trash) { return; }
+  // ADD NG TO DO FUNCTION
+  function addToDo(toDo, id, done, trash) {
+    if (trash) {
+      return;
+    }
 
     const DONE = done ? CHECK : UNCHECK;
-    const LINE = done ? LINE_THROUGH : "";
+    const LINE = done ? LINE_THROUGH : '';
 
-    const item =  `
-                    <li class="item"> 
+    const item = `
+                    <li class="item">
                       <i class="fa ${DONE} co" job="complete" id="${id}"></i>
                       <p class="text ${LINE}"> ${toDo} </p>
                       <i class="fa fa-trash-o de" job="delete" id="${id}"></i>
                     </li>
-                  `
+                  `;
 
-  const position = "beforeend";
+    const position = 'beforeend';
 
-  list.insertAdjacentHTML(position, item);
-}
+    list.insertAdjacentHTML(position, item);
+  }
 
-// ADD NG ITEM SA LIST GAMIT ANG ENTER KEY
-document.addEventListener("keyup", function(event){
-    if(event.keyCode === 13) {
-        const toDo = input.value;
+  // ADD NG ITEM SA LIST GAMIT ANG ENTER KEY
+  document.addEventListener('keyup', function (event) {
+    const isShowAll = localStorage.getItem('showAll');
+    const isShowDone = localStorage.getItem('showDone');
 
-        // KAPAG ANG INPUT AY WALA
-        if(toDo) {
-            addToDo(toDo, id, false, false);
+    if (event.keyCode === 13) {
+      const toDo = input.value;
 
-            LIST.push({
-                name: toDo,
-                id: id,
-                done: false,
-                trash: false
-            });
-
-            // PAGSAVE NG MGA TASK
-            // laging gamitin kapag may list na gustong iupdate
-            localStorage.setItem("TODO", JSON.stringify(LIST)); 
-
-            id++;
+      // KAPAG ANG INPUT AY WALA
+      if (toDo) {
+        if (isShowAll === 'yes' || isShowDone === 'no') {
+          addToDo(toDo, id, false, false);
         }
-        input.value = "";
-    }
-});
 
-// COMPLETE NA ANG TODO
-function completeToDo(element) {
+        LIST.push({
+          name: toDo,
+          id: id,
+          done: false,
+          trash: false,
+        });
+
+        // PAGSAVE NG MGA TASK
+        // laging gamitin kapag may list na gustong iupdate
+        localStorage.setItem('TODO', JSON.stringify(LIST));
+
+        id++;
+      }
+      input.value = '';
+    }
+  });
+
+  // COMPLETE NA ANG TODO
+  function completeToDo(element) {
     element.classList.toggle(CHECK);
     element.classList.toggle(UNCHECK);
-    element.parentNode.querySelector(".text").classList.toggle(LINE_THROUGH);
+    element.parentNode.querySelector('.text').classList.toggle(LINE_THROUGH);
 
     LIST[element.id].done = LIST[element.id].done ? false : true;
-}
+  }
 
-// REMOVE ANG TO DO
-function removeToDo(element) {
+  // REMOVE ANG TO DO
+  function removeToDo(element) {
     element.parentNode.parentNode.removeChild(element.parentNode);
 
     LIST[element.id].trash = true;
-}
+  }
 
-// TARGETIN ANG ITEM NA GINAWA
-list.addEventListener("click", function(event) {
-    const element = event.target;   // return the click element inside list
-    const elementJob = element.attributes.job.value;    // complete or delete
+  // TARGETIN ANG ITEM NA GINAWA
+  list.addEventListener('click', function (event) {
+    const element = event.target; // return the click element inside list
+    const elementJob = element.attributes.job.value; // complete or delete
 
-    if(elementJob === "complete") {
-        completeToDo(element);
-    } else if(elementJob === "delete") {
-        removeToDo(element);
+    if (elementJob === 'complete') {
+      completeToDo(element);
+    } else if (elementJob === 'delete') {
+      removeToDo(element);
     }
 
     // PAGSAVE NG MGA TASK
     // laging gamitin kapag may list na gustong iupdate
-    localStorage.setItem("TODO", JSON.stringify(LIST)); 
-});
-
-// FILTER OPTIONS
-// filterOption.addEventListener('click', filterTodo);
-// function filterTodo(e) {
-//     const todos = todoList.childNodes;
-//     console.log(todos);
-// }
+    localStorage.setItem('TODO', JSON.stringify(LIST));
+  });
+};
