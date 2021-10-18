@@ -4,7 +4,6 @@ window.onload = function () {
   const dateElement = document.getElementById('date');
   const list = document.getElementById('list');
   const input = document.getElementById('input');
-  const filterOption = document.querySelector('.select');
   const showCompletedBtn = document.getElementById('showCompleted');
   const showActiveBtn = document.getElementById('showActive');
   const showAllBtn = document.getElementById('showAll');
