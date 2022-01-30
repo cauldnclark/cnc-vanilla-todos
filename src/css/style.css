@@ -22,7 +22,7 @@ h1 {
 .header {
   width: 380px;
   height: 200px;
-  background-image: url('../img/bahay.jpg');
+  background-image: url('../img/cnc.png');
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: center;
@@ -47,9 +47,9 @@ h1 {
 }
 #date {
   position: absolute;
-  bottom: 10px;
+  bottom: 3px;
   left: 10px;
-  color: #fff;
+  color: #000;
   font-size: 25px;
   font-weight: bold;
   font-family: 'Titillium Web', sans-serif;
