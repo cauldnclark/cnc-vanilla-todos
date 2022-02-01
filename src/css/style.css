@@ -55,6 +55,17 @@ h1 {
   font-family: 'Titillium Web', sans-serif;
 }
 
+.fa-refresh {
+  position: absolute;
+  top: 3px;
+}
+
+.fa-edit {
+  position: absolute;
+  top: 15px;
+  right: 40px;
+}
+
 /* ------------ content ------------ */
 .content {
   width: 380px;
